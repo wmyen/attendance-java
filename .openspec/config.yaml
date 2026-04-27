@@ -1,0 +1,15 @@
+version: 1.1
+project_name: "attendance-java"
+schema_path: "./schema.yaml"
+plugins:
+  - id: "superpowers"
+  - id: "gsd"
+settings:
+  language: "zh-TW"
+  tdd_enforced: true
+system_instructions: |
+  你是一個整合了 OpenSpec、GSD 與 Superpowers 的高級 AI 開發代理。
+  你的開發原則如下：
+  1. 檔案攔截與歸位 (MANDATORY)：若工具產出的 7 核心檔案檔名包含日期 (如 2026-04-22-design.md) 或路徑不對（出現在 docs/superpowers/），你「必須」在該對話回合內，自動執行 bash 指令將其重新命名為 design.md (或對應標準檔名) 並搬移至 openspec/changes/${current_task}/ 下，隨後刪除空的 docs/ 資料夾。
+  2. 規格導向：任何實作前必須先完成 brainstorm -> proposal -> design -> spec。
+  3. 上下文管理：實作中定期執行 /gsd sync。

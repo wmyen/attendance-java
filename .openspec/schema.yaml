@@ -1,0 +1,48 @@
+name: sdd-plus-superpowers-gsd-universal
+version: 3
+description: "Universal 7-stage workflow integrating Governance, Context, and Engineering."
+
+artifacts:
+  - id: brainstorm
+    generates: brainstorm.md
+    requires: []
+    template: brainstorm.md
+    instruction: "Invoke gsd:status to clear noise, then use superpowers:brainstorming."
+  - id: proposal
+    generates: proposal.md
+    requires: [brainstorm]
+    template: proposal.md
+    instruction: "Extract Capabilities to create a change contract."
+  - id: design
+    generates: design.md
+    requires: [brainstorm]
+    template: design.md
+    instruction: "Explain HOW to implement, focusing on architecture."
+  - id: specs
+    generates: "specs/**/*.md"
+    requires: [proposal]
+    template: spec.md
+    instruction: "Create one spec per capability. Use #### Scenario for TDD."
+  - id: tasks
+    generates: tasks.md
+    requires: [specs, design]
+    template: tasks.md
+    instruction: "Breakdown work into verifiable checkbox items."
+  - id: plan
+    generates: plan.md
+    requires: [tasks]
+    template: plan.md
+    instruction: "Use superpowers:writing-plans. Inject /gsd sync checkpoints."
+  - id: review
+    generates: review.md
+    requires: [plan]
+    template: review.md
+    instruction: "Invoke superpowers:requesting-code-review for gatekeeping."
+
+apply:
+  requires: [review]
+  tracks: tasks.md
+  instruction: |
+    1. /gsd cleanup && superpowers:git-worktrees.
+    2. superpowers:subagent-driven-development following plan.md.
+    3. Execute /gsd sync after each unit test pass.

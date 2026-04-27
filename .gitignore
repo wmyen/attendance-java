@@ -1,0 +1,72 @@
+# security
+.env
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+.gradle/
+build/
+!gradle-wrapper.jar
+
+# Spring Boot
+.springBeans/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed_cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Node.js / Frontend
+node_modules/
+.npm
+.pnpm-store/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Output files (use output/ directory instead)
+*.csv
+*.xlsx
+output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
