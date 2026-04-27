@@ -39,7 +39,8 @@ apps/
 │   │   ├── router/     # 路由與權限守衛
 │   │   └── utils/      # 工具函式
 │   └── ...
-└── backend/            # Spring Boot 3.x
+└── backend/            # Spring Boot 3.x + Maven
+    ├── pom.xml
     └── src/main/java/com/attendance/
         ├── config/     # Security, Mail, CORS 配置
         ├── controller/ # REST API endpoints
