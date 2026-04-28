@@ -70,6 +70,41 @@ apps/backend/
 - JWT secret + token 有效期設定
 - Server port: 8080
 
+### 1.3.1 環境變數設定（`.env`）
+
+所有敏感設定透過環境變數注入，預設值定義於 `application.yml`。專案根目錄的 `.env` 檔案（已在 `.gitignore` 中）用於本地開發：
+
+```properties
+# --- MySQL 資料庫 ---
+DB_USERNAME=root
+DB_PASSWORD=root
+
+# --- Email (Gmail SMTP) ---
+MAIL_USERNAME=
+MAIL_PASSWORD=
+
+# --- JWT ---
+JWT_SECRET=...
+```
+
+> **MySQL 注意事項**
+> - 需先建立資料庫：`CREATE DATABASE attendance_db;`
+> - `application.yml` 預設帳密為 `root/root`，依本地環境調整
+
+> **Email 注意事項（Gmail SMTP）**
+> - `MAIL_USERNAME` 填 Gmail 地址
+> - `MAIL_PASSWORD` 需使用 **Google 應用程式密碼**（非 Gmail 登入密碼）
+> - 取得方式：Google 帳號 → 安全性 → 啟用兩步驟驗證 → 應用程式密碼 → 產生一組密碼
+> - SMTP 設定：`smtp.gmail.com:587`（STARTTLS）
+
+| 環境變數 | 對應 application.yml | 預設值 | 說明 |
+|---------|---------------------|--------|------|
+| `DB_USERNAME` | `spring.datasource.username` | `root` | MySQL 帳號 |
+| `DB_PASSWORD` | `spring.datasource.password` | `root` | MySQL 密碼 |
+| `MAIL_USERNAME` | `spring.mail.username` | 空 | Gmail 地址 |
+| `MAIL_PASSWORD` | `spring.mail.password` | 空 | Google 應用程式密碼 |
+| `JWT_SECRET` | `jwt.secret` | 開發用預設值 | JWT 簽章金鑰 |
+
 ### 1.4 CORS 配置類別
 
 - `config/CorsConfig.java` — 允許前端 `localhost:5173`（Vite 預設）
