@@ -85,6 +85,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Dotenv (.env file support) -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>springboot3-dotenv</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
