@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div style="max-width:600px;margin:0 auto;font-family:sans-serif;padding:20px;">
+    <h2>考勤管理系統 — 帳號建立通知</h2>
+    <p th:text="'您好，' + ${name} + '：'">您好：</p>
+    <p>您的考勤系統帳號已建立，請使用以下資訊登入：</p>
+    <table style="border-collapse:collapse;width:100%;max-width:400px;">
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">帳號</td>
+            <td style="padding:8px;border:1px solid #ddd;" th:text="${email}">email</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">初始密碼</td>
+            <td style="padding:8px;border:1px solid #ddd;" th:text="${password}">password</td></tr>
+    </table>
+    <p style="color:#e74c3c;font-weight:bold;">請於首次登入後立即修改密碼。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div style="max-width:600px;margin:0 auto;font-family:sans-serif;padding:20px;">
+    <h2>考勤管理系統 — 請假簽核結果</h2>
+    <p>您的請假申請（假別：<strong th:text="${leaveTypeName}">假別</strong>）已簽核。</p>
+    <p th:if="${approved}" style="color:#27ae60;font-size:18px;font-weight:bold;">&#10003; 核准</p>
+    <p th:unless="${approved}" style="color:#e74c3c;font-size:18px;font-weight:bold;">&#10007; 駁回</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div style="max-width:600px;margin:0 auto;font-family:sans-serif;padding:20px;">
+    <h2>考勤管理系統 — 加班申請通知</h2>
+    <p>您的下屬 <strong th:text="${applicantName}">申請人</strong> 提交了一份加班申請：</p>
+    <table style="border-collapse:collapse;width:100%;max-width:400px;">
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">加班開始</td>
+            <td style="padding:8px;border:1px solid #ddd;" th:text="${startTime}">開始</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">加班結束</td>
+            <td style="padding:8px;border:1px solid #ddd;" th:text="${endTime}">結束</td></tr>
+    </table>
+    <p>請登入系統進行簽核。</p>
+</div>
+</body>
+</html>
