@@ -8,6 +8,7 @@ import com.attendance.entity.User;
 import com.attendance.repository.AttendanceRepository;
 import com.attendance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class AttendanceService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ClockResponse clockIn(Long userId) {
+    public ClockResponse clockIn(@NonNull Long userId) {
         LocalDate today = LocalDate.now();
         LocalDateTime now = LocalDateTime.now();
 
@@ -55,7 +56,7 @@ public class AttendanceService {
     }
 
     @Transactional
-    public ClockResponse clockOut(Long userId) {
+    public ClockResponse clockOut(@NonNull Long userId) {
         LocalDate today = LocalDate.now();
         LocalDateTime now = LocalDateTime.now();
 
@@ -78,14 +79,14 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public ClockResponse getToday(Long userId) {
+    public ClockResponse getToday(@NonNull Long userId) {
         return attendanceRepository.findByUserIdAndDate(userId, LocalDate.now())
                 .map(this::toResponse)
                 .orElse(null);
     }
 
     @Transactional(readOnly = true)
-    public MonthlyResponse getMonthly(Long userId, int year, int month) {
+    public MonthlyResponse getMonthly(@NonNull Long userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();

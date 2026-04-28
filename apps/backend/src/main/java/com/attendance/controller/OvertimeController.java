@@ -7,6 +7,7 @@ import com.attendance.service.OvertimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +46,7 @@ public class OvertimeController {
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<OvertimeResponse> approve(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(overtimeService.approve(id, userDetails.getId()));
     }
@@ -53,7 +54,7 @@ public class OvertimeController {
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<OvertimeResponse> reject(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(overtimeService.reject(id, userDetails.getId()));
     }

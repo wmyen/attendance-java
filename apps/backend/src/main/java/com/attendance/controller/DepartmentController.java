@@ -6,6 +6,7 @@ import com.attendance.service.DepartmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class DepartmentController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DepartmentResponse> update(@PathVariable Long id,
+    public ResponseEntity<DepartmentResponse> update(@PathVariable @NonNull Long id,
                                                      @Valid @RequestBody DepartmentRequest request) {
         return ResponseEntity.ok(departmentService.update(id, request));
     }

@@ -5,6 +5,7 @@ import com.attendance.entity.User;
 import com.attendance.repository.UserRepository;
 import com.attendance.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void changePassword(Long userId, ChangePasswordRequest request) {
+    public void changePassword(@NonNull Long userId, ChangePasswordRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
 

@@ -5,6 +5,7 @@ import com.attendance.dto.department.DepartmentResponse;
 import com.attendance.entity.Department;
 import com.attendance.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class DepartmentService {
     }
 
     @Transactional
-    public DepartmentResponse update(Long id, DepartmentRequest request) {
+    public DepartmentResponse update(@NonNull Long id, DepartmentRequest request) {
         Department dept = departmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("部門不存在"));
         dept.setName(request.getName());

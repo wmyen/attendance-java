@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse getUser(Long id) {
+    public UserResponse getUser(@NonNull Long id) {
         return toResponse(findById(id));
     }
 
@@ -80,7 +81,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id, UserUpdateRequest request) {
+    @SuppressWarnings("null")
+    public UserResponse updateUser(@NonNull Long id, UserUpdateRequest request) {
         User user = findById(id);
 
         if (request.getName() != null) {
@@ -103,13 +105,13 @@ public class UserService {
     }
 
     @Transactional
-    public void deactivateUser(Long id) {
+    public void deactivateUser(@NonNull Long id) {
         User user = findById(id);
         user.setIsActive(false);
         userRepository.save(user);
     }
 
-    private User findById(Long id) {
+    private User findById(@NonNull Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
     }

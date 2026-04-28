@@ -9,6 +9,7 @@ import com.attendance.exception.ResourceNotFoundException;
 import com.attendance.repository.OvertimeRequestRepository;
 import com.attendance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ public class OvertimeService {
     private final MailService mailService;
 
     @Transactional
-    public OvertimeResponse apply(Long userId, OvertimeApplyRequest request) {
+    public OvertimeResponse apply(@NonNull Long userId, OvertimeApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("使用者不存在"));
 
@@ -49,14 +50,14 @@ public class OvertimeService {
     }
 
     @Transactional(readOnly = true)
-    public List<OvertimeResponse> getMyOvertimes(Long userId) {
+    public List<OvertimeResponse> getMyOvertimes(@NonNull Long userId) {
         return overtimeRequestRepository.findByUserId(userId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<OvertimeResponse> getPendingOvertimes(Long managerId) {
+    public List<OvertimeResponse> getPendingOvertimes(@NonNull Long managerId) {
         return overtimeRequestRepository.findByStatusAndUser_ManagerId(RequestStatus.PENDING, managerId)
                 .stream()
                 .map(this::toResponse)
@@ -64,7 +65,7 @@ public class OvertimeService {
     }
 
     @Transactional
-    public OvertimeResponse approve(Long requestId, Long managerId) {
+    public OvertimeResponse approve(@NonNull Long requestId, @NonNull Long managerId) {
         OvertimeRequest req = overtimeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("加班申請不存在"));
         if (req.getStatus() != RequestStatus.PENDING) {
@@ -83,7 +84,7 @@ public class OvertimeService {
     }
 
     @Transactional
-    public OvertimeResponse reject(Long requestId, Long managerId) {
+    public OvertimeResponse reject(@NonNull Long requestId, @NonNull Long managerId) {
         OvertimeRequest req = overtimeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("加班申請不存在"));
         if (req.getStatus() != RequestStatus.PENDING) {

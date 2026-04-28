@@ -4,9 +4,9 @@
 
 ## 審查摘要
 
-- 審查日期: 2026-04-28
+- 審查日期: 2026-04-28（最後更新: 2026-04-28）
 - 審查範圍: 後端 59 個 .java + 前端 33 個 .ts/.vue + 5 個 email 模板
-- 整體結果: **通過** (有注意事項)
+- 整體結果: **通過**
 
 ---
 
@@ -322,31 +322,35 @@
 
 ## 8. 注意事項與建議
 
-### 8.1 嚴重程度: 低 (不影響功能正確性)
+### 8.1 已修正項目
 
-1. **auth store login 回傳值結構**: `stores/auth.ts` 的 `login()` 函式中從 `data` 存取 `data.role`、`data.name`、`data.userId`，但後端 `LoginResponse` 的結構是 `{ accessToken, refreshToken, user: { id, email, name, role, mustChangePassword } }`。前端 `localStorage.setItem('userRole', data.role)` 應該是 `data.user.role`，同理 `data.name` -> `data.user.name`、`data.userId` -> `data.user.id`。由於 Axios 會把 response 放在 `data` 屬性中，解構後的 `data` 已是 `LoginResponse` 物件，所以 `data.role` 實際上會是 `undefined`，導致 role 相關邏輯可能失效。
+1. ~~**auth store login 回傳值結構**~~: 已修正 `stores/auth.ts`，改為 `data.user.role`、`data.user.name`、`data.user.id`。
 
-2. **leaves/Apply.vue 假別清單未載入**: `onMounted` 中 `request.get('/departments')` 的結果未被指派給任何變數，假別清單 `leaveTypes` 始終為空陣列，使用者無法選擇假別。應額外呼叫一支 API 取得 leave types（目前系統缺少一個公開的 leave types 列表端點）。
+2. ~~**leaves/Apply.vue 假別清單未載入**~~: 已新增 `getLeaveTypes()` API 呼叫，並修正 `onMounted`。
 
-3. **change-password 頁面無需登入即可存取**: 路由中 `/change-password` 設定為 `meta: { public: true }`，但 `AuthController.changePassword()` 需要 `@AuthenticationPrincipal`，代表必須帶有效 token。若使用者首次登入後 token 過期，在 change-password 頁面將無法成功修改密碼。建議移除 public 標記，或在 change-password 頁面加入 token 過期的處理邏輯。
+3. ~~**缺少 leave_types 列表 API**~~: 已在 `LeaveController` 新增 `GET /leaves/types` 端點。
 
-4. **缺少 leave_types 列表 API**: `LeaveApplyRequest` 需要 `leaveTypeId`，但目前沒有公開的 GET `/api/v1/leave-types` 端點供前端取得假別列表。前端 Apply.vue 的假別下拉選單無法正常運作。
+4. ~~**GlobalExceptionHandler 未處理 AccessDeniedException**~~: 已新增 `@ExceptionHandler(AccessDeniedException.class)` 回傳 403。
 
-5. **缺少 leave_types 初始化的 data.sql 觸發**: `data.sql` 使用 `INSERT IGNORE`，需要搭配 `spring.sql.init.mode=always` 或 `spring.jpa.hibernate.ddl-auto=create` 才會自動執行。目前使用 `ddl-auto: update`，`data.sql` 可能不會被執行。建議確認初始化策略。
+5. ~~**admin/Attendance.vue 未使用 userId 參數**~~: 已新增員工選擇下拉選單。
 
-6. **GlobalExceptionHandler 未處理 AccessDeniedException**: 當使用者角色不符 `@PreAuthorize` 時，Spring Security 會拋出 `AccessDeniedException` (403)，但 `GlobalExceptionHandler` 未針對此例外做處理，會落入通用的 `Exception` handler 回傳 500。
+6. ~~**程式碼品質: 未使用 import 與 null safety 警告**~~: 已清除所有未使用 import（`SecurityConfig`、`UserCreateRequest`、`GlobalExceptionHandler`），並全面加入 `@NonNull` 註解與 `Objects.requireNonNull()` 防護（涵蓋 7 個 entity、3 個 security 類別、6 個 service、4 個 controller），VSCode 零警告。
 
-7. **前端 API 模組副檔名差異**: 規格標示 `request.js`、`auth.js` 等，實際使用 TypeScript 副檔名 `.ts`。功能上無影響，僅為命名差異。
+### 8.2 嚴重程度: 低 (不影響功能正確性)
 
-### 8.2 建議改善 (非規格必要)
+1. **change-password 頁面無需登入即可存取**: 路由中 `/change-password` 設定為 `meta: { public: true }`，但 `AuthController.changePassword()` 需要 `@AuthenticationPrincipal`，代表必須帶有效 token。若使用者首次登入後 token 過期，在 change-password 頁面將無法成功修改密碼。建議移除 public 標記，或在 change-password 頁面加入 token 過期的處理邏輯。
+
+2. **缺少 leave_types 初始化的 data.sql 觸發**: `data.sql` 使用 `INSERT IGNORE`，需要搭配 `spring.sql.init.mode=always` 或 `spring.jpa.hibernate.ddl-auto=create` 才會自動執行。目前使用 `ddl-auto: update`，`data.sql` 可能不會被執行。建議確認初始化策略。
+
+3. **前端 API 模組副檔名差異**: 規格標示 `request.js`、`auth.js` 等，實際使用 TypeScript 副檔名 `.ts`。功能上無影響，僅為命名差異。
+
+### 8.3 建議改善 (非規格必要)
 
 1. **Vite proxy 未處理 WebSocket**: 開發環境若需要 HMR (Hot Module Replacement) 的 WebSocket 代理，目前的 proxy 設定未涵蓋。
 
 2. **JWT secret 硬編碼預設值**: `application.yml` 中 `jwt.secret` 有預設值 `myDefaultSecretKeyForDevelopmentOnlyDoNotUseInProduction2026AttendanceSystem`，雖然有環境變數覆蓋機制，但建議在正式環境中移除此預設值，強制透過環境變數提供。
 
-3. **admin/Attendance.vue 未使用 userId 參數**: 規格要求管理者可查詢特定員工出缺勤，但目前 Admin Attendance 頁面僅查詢自己（缺少員工選擇器）。需要補上使用者選擇功能。
-
-4. **前端缺少 /leaves/balance?year 參數**: `LeaveBalance.vue` 和 `stores/leave.ts` 的 `fetchBalance` 未傳入 year 參數，依賴後端預設為當前年度。可考慮加入年度選擇器。
+3. **前端缺少 /leaves/balance?year 參數**: `LeaveBalance.vue` 和 `stores/leave.ts` 的 `fetchBalance` 未傳入 year 參數，依賴後端預設為當前年度。可考慮加入年度選擇器。
 
 ---
 
@@ -365,9 +369,7 @@
 - 前端 16 個路由頁面、5 個 Pinia store、7 個 API 模組齊全
 
 需關注的注意事項：
-- `stores/auth.ts` 中 login 回傳值結構可能與後端 LoginResponse 不匹配（`data.role` 應為 `data.user.role`）
-- 缺少 leave types 列表 API，導致請假申請頁面假別下拉選單無資料
-- `GlobalExceptionHandler` 未處理 `AccessDeniedException` (403)
-- Admin Attendance 頁面缺少員工選擇功能
+- change-password 頁面 public 路由與 token 驗證的邊界情境
+- data.sql 初始化策略在 `ddl-auto: update` 模式下可能不執行
 
-以上注意事項均為低嚴重度，不影響系統核心架構的完整性，建議在後續迭代中修正。
+前次審查中發現的 6 項問題（auth store 結構、假別 API、AccessDeniedException、admin 員工選擇器、未使用 import、null safety 警告）均已修正完畢。

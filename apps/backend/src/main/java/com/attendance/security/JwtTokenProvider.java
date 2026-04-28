@@ -3,6 +3,7 @@ package com.attendance.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -25,15 +26,15 @@ public class JwtTokenProvider {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateAccessToken(Long userId, String email, String role) {
+    public String generateAccessToken(@NonNull Long userId, String email, String role) {
         return buildToken(userId, email, role, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(Long userId, String email, String role) {
+    public String generateRefreshToken(@NonNull Long userId, String email, String role) {
         return buildToken(userId, email, role, refreshTokenExpiration);
     }
 
-    private String buildToken(Long userId, String email, String role, long expiration) {
+    private String buildToken(@NonNull Long userId, String email, String role, long expiration) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(userId.toString())
@@ -62,6 +63,7 @@ public class JwtTokenProvider {
         }
     }
 
+    @NonNull
     public Long getUserId(String token) {
         return Long.parseLong(parseToken(token).getSubject());
     }

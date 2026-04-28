@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.NonNull;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "leave_types")
@@ -17,6 +20,9 @@ public class LeaveType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NonNull
+    public Long getId() { return Objects.requireNonNull(id); }
 
     @Column(nullable = false, length = 50)
     private String name;

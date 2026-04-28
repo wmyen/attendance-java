@@ -10,6 +10,7 @@ import com.attendance.repository.LeaveRequestRepository;
 import com.attendance.repository.LeaveTypeRepository;
 import com.attendance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +34,10 @@ public class LeaveService {
     private static final BigDecimal HOURS_PER_DAY = BigDecimal.valueOf(8);
 
     @Transactional
-    public LeaveResponse apply(Long userId, LeaveApplyRequest request) {
+    public LeaveResponse apply(@NonNull Long userId, LeaveApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("使用者不存在"));
-        LeaveType leaveType = leaveTypeRepository.findById(request.getLeaveTypeId())
+        LeaveType leaveType = leaveTypeRepository.findById(Objects.requireNonNull(request.getLeaveTypeId()))
                 .orElseThrow(() -> new ResourceNotFoundException("假別不存在"));
 
         LeaveRequest leaveRequest = new LeaveRequest();
@@ -46,7 +48,7 @@ public class LeaveService {
         leaveRequest.setReason(request.getReason());
 
         if (request.getAgentId() != null) {
-            User agent = userRepository.findById(request.getAgentId())
+            User agent = userRepository.findById(Objects.requireNonNull(request.getAgentId()))
                     .orElseThrow(() -> new ResourceNotFoundException("代理人不存在"));
             leaveRequest.setAgent(agent);
         }
@@ -68,14 +70,14 @@ public class LeaveService {
     }
 
     @Transactional(readOnly = true)
-    public List<LeaveResponse> getMyLeaves(Long userId) {
+    public List<LeaveResponse> getMyLeaves(@NonNull Long userId) {
         return leaveRequestRepository.findByUserId(userId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<LeaveResponse> getPendingLeaves(Long managerId) {
+    public List<LeaveResponse> getPendingLeaves(@NonNull Long managerId) {
         return leaveRequestRepository.findByStatusAndUser_ManagerId(RequestStatus.PENDING, managerId)
                 .stream()
                 .map(this::toResponse)
@@ -83,7 +85,7 @@ public class LeaveService {
     }
 
     @Transactional
-    public LeaveResponse approve(Long requestId, Long managerId) {
+    public LeaveResponse approve(@NonNull Long requestId, @NonNull Long managerId) {
         LeaveRequest req = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("請假單不存在"));
         if (req.getStatus() != RequestStatus.PENDING) {
@@ -116,7 +118,7 @@ public class LeaveService {
     }
 
     @Transactional
-    public LeaveResponse reject(Long requestId, Long managerId) {
+    public LeaveResponse reject(@NonNull Long requestId, @NonNull Long managerId) {
         LeaveRequest req = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("請假單不存在"));
         if (req.getStatus() != RequestStatus.PENDING) {
@@ -135,7 +137,7 @@ public class LeaveService {
     }
 
     @Transactional(readOnly = true)
-    public List<LeaveBalanceResponse> getBalance(Long userId, int year) {
+    public List<LeaveBalanceResponse> getBalance(@NonNull Long userId, int year) {
         int targetYear = year == 0 ? Year.now().getValue() : year;
         return leaveBalanceRepository.findByUserIdAndYear(userId, targetYear).stream()
                 .map(this::toBalanceResponse)

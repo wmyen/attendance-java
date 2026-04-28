@@ -10,6 +10,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import jakarta.mail.internet.MimeMessage;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -72,9 +73,9 @@ public class MailService {
             String htmlContent = templateEngine.process(template, context);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
+            helper.setTo(Objects.requireNonNull(to));
+            helper.setSubject(Objects.requireNonNull(subject));
+            helper.setText(Objects.requireNonNull(htmlContent), true);
             mailSender.send(message);
             log.info("Email sent to {}", to);
         } catch (Exception e) {

@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import org.springframework.lang.NonNull;
+
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "overtime_requests")
@@ -19,6 +22,9 @@ public class OvertimeRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NonNull
+    public Long getId() { return Objects.requireNonNull(id); }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

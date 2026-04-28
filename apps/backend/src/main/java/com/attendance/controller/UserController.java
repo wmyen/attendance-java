@@ -5,6 +5,7 @@ import com.attendance.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> get(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> get(@PathVariable @NonNull Long id) {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
@@ -38,14 +39,14 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> update(@PathVariable Long id,
+    public ResponseEntity<UserResponse> update(@PathVariable @NonNull Long id,
                                                @Valid @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deactivate(@PathVariable Long id) {
+    public ResponseEntity<Void> deactivate(@PathVariable @NonNull Long id) {
         userService.deactivateUser(id);
         return ResponseEntity.ok().build();
     }

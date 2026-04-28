@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
+import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "leave_balances", uniqueConstraints = {
@@ -21,6 +23,9 @@ public class LeaveBalance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NonNull
+    public Long getId() { return Objects.requireNonNull(id); }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

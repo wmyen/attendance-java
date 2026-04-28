@@ -11,6 +11,7 @@ import com.attendance.service.LeaveService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +58,7 @@ public class LeaveController {
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<LeaveResponse> approve(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(leaveService.approve(id, userDetails.getId()));
     }
@@ -65,7 +66,7 @@ public class LeaveController {
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<LeaveResponse> reject(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(leaveService.reject(id, userDetails.getId()));
     }
@@ -78,7 +79,8 @@ public class LeaveController {
             @RequestParam(required = false) Long userId) {
         Long targetUserId = resolveTargetUserId(userDetails, userId);
         int targetYear = year == 0 ? Year.now().getValue() : year;
-        return ResponseEntity.ok(leaveService.getBalance(targetUserId, targetYear));
+        return ResponseEntity.ok(leaveService.getBalance(
+                java.util.Objects.requireNonNull(targetUserId), targetYear));
     }
 
     private Long resolveTargetUserId(CustomUserDetails currentUser, Long requestedUserId) {
