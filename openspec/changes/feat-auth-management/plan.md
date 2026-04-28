@@ -59,6 +59,7 @@ apps/backend/
 | spring-boot-starter-thymeleaf | Email 模板 |
 | mysql-connector-j | MySQL 驅動 |
 | jjwt-api + jjwt-impl + jjwt-jackson | JWT (0.12.x) |
+| springboot3-dotenv | .env 環境變數載入 |
 | lombok | 簡化 Boilerplate |
 | spring-boot-starter-test | 測試 |
 
@@ -72,7 +73,7 @@ apps/backend/
 
 ### 1.3.1 環境變數設定（`.env`）
 
-所有敏感設定透過環境變數注入，預設值定義於 `application.yml`。專案根目錄的 `.env` 檔案（已在 `.gitignore` 中）用於本地開發：
+所有敏感設定透過環境變數注入，預設值定義於 `application.yml`。透過 `springboot3-dotenv` 套件，Spring Boot 啟動時自動從專案根目錄的 `.env` 檔案載入（`springdotenv.directory: ../../` 指向專案根目錄）。`.env` 檔案已在 `.gitignore` 中，不會進入版控。
 
 ```properties
 # --- MySQL 資料庫 ---
