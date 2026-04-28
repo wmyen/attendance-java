@@ -3,7 +3,9 @@ package com.attendance.controller;
 import com.attendance.dto.leave.LeaveApplyRequest;
 import com.attendance.dto.leave.LeaveBalanceResponse;
 import com.attendance.dto.leave.LeaveResponse;
+import com.attendance.entity.LeaveType;
 import com.attendance.entity.UserRole;
+import com.attendance.repository.LeaveTypeRepository;
 import com.attendance.security.CustomUserDetails;
 import com.attendance.service.LeaveService;
 import jakarta.validation.Valid;
@@ -22,6 +24,13 @@ import java.util.List;
 public class LeaveController {
 
     private final LeaveService leaveService;
+    private final LeaveTypeRepository leaveTypeRepository;
+
+    @GetMapping("/types")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
+    public ResponseEntity<List<LeaveType>> listLeaveTypes() {
+        return ResponseEntity.ok(leaveTypeRepository.findAll());
+    }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")

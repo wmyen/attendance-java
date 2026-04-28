@@ -10,12 +10,12 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await authApi.login({ email, password })
     localStorage.setItem('accessToken', data.accessToken)
     localStorage.setItem('refreshToken', data.refreshToken)
-    localStorage.setItem('userRole', data.role)
-    localStorage.setItem('userName', data.name)
-    localStorage.setItem('userId', data.userId)
-    user.value = data
-    role.value = data.role
-    return data
+    localStorage.setItem('userRole', data.user.role)
+    localStorage.setItem('userName', data.user.name)
+    localStorage.setItem('userId', String(data.user.id))
+    user.value = data.user
+    role.value = data.user.role
+    return data.user
   }
 
   async function changePassword(oldPassword: string, newPassword: string) {

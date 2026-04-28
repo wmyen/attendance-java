@@ -29,3 +29,7 @@ export function rejectLeave(id: number) {
 export function getLeaveBalance(params?: { userId?: number }) {
   return request.get('/leaves/balance', { params })
 }
+
+export function getLeaveTypes() {
+  return request.get('/leaves/types')
+}

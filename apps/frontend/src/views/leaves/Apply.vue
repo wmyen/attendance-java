@@ -34,6 +34,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useLeaveStore } from '../../stores/leave'
 import type { FormInstance } from 'element-plus'
+import { getLeaveTypes } from '../../api/leaves'
 import request from '../../api/request'
 
 const leaveStore = useLeaveStore()
@@ -75,10 +76,11 @@ async function handleSubmit() {
 }
 
 onMounted(async () => {
-  const [, deptRes] = await Promise.all([
-    request.get('/departments'),
+  const [ltRes, usersRes] = await Promise.all([
+    getLeaveTypes(),
     request.get('/users', { params: { page: 0, size: 100 } }),
   ])
-  agents.value = deptRes.data.content || []
+  leaveTypes.value = ltRes.data
+  agents.value = usersRes.data.content || []
 })
 </script>

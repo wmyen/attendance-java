@@ -2,6 +2,9 @@
   <div>
     <h2>全公司出缺勤</h2>
     <div style="margin: 20px 0; display: flex; gap: 12px; align-items: center;">
+      <el-select v-model="selectedUserId" placeholder="選擇員工" clearable @change="fetchData" style="width: 250px;">
+        <el-option v-for="u in userList" :key="u.id" :label="`${u.name} (${u.email})`" :value="u.id" />
+      </el-select>
       <el-date-picker v-model="selectedMonth" type="month" placeholder="選擇月份" format="YYYY/MM" value-format="YYYY-MM" @change="fetchData" />
     </div>
     <el-table :data="records" stripe border>
@@ -24,9 +27,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getMonthly } from '../../api/attendance'
+import { getUsers } from '../../api/users'
 
 const records = ref<any[]>([])
 const selectedMonth = ref('')
+const selectedUserId = ref<number | undefined>(undefined)
+const userList = ref<any[]>([])
 
 function formatTime(dt: string | null) {
   if (!dt) return '-'
@@ -40,11 +46,15 @@ function statusTagType(status: string) {
 
 async function fetchData() {
   const [year, month] = (selectedMonth.value || new Date().toISOString().slice(0, 7)).split('-')
-  const { data } = await getMonthly({ year: Number(year), month: Number(month) })
+  const params: any = { year: Number(year), month: Number(month) }
+  if (selectedUserId.value) params.userId = selectedUserId.value
+  const { data } = await getMonthly(params)
   records.value = data.records || []
 }
 
-onMounted(() => {
+onMounted(async () => {
+  const { data } = await getUsers({ page: 0, size: 100 })
+  userList.value = data.content || []
   const now = new Date()
   selectedMonth.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   fetchData()
