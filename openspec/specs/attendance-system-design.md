@@ -20,6 +20,7 @@
 │  - Spring Security + JWT (stateless)            │
 │  - Spring Data JPA + MySQL                      │
 │  - Spring Boot Mail + Gmail SMTP                │
+│  - spring-dotenv (.env 環境變數載入)             │
 │  - Bean Validation (input 驗證)                 │
 │                                                 │
 │  分層: Controller → Service → Repository → Entity│
@@ -237,7 +238,8 @@ users ──(agent_id)──► users (自關聯，職務代理人)
 ### 實作
 
 - Spring Boot Mail + `JavaMailSender`
-- Gmail SMTP (`smtp.gmail.com:587`)，application.yml 配置
+- Gmail SMTP (`smtp.gmail.com:587`)，帳密透過環境變數注入（`.env` 或系統環境變數）
+- `springboot3-dotenv` 自動載入專案根目錄 `.env`（本地開發用，正式環境用系統環境變數）
 - Thymeleaf 模板產生 HTML Email
 - `@Async` 非同步寄送，不阻塞 API 回應
 
