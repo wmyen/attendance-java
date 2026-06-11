@@ -1,9 +1,9 @@
 version: 1.1
-project_name: "attendance-java"
+project_name: "attendance-redo"
 schema_path: "./schema.yaml"
 plugins:
   - id: "superpowers"
-  - id: "gsd"
+  - id: "gsd-core"
 settings:
   language: "zh-TW"
   tdd_enforced: true

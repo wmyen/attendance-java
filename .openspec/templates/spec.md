@@ -1,6 +1,6 @@
 # 規格書: [能力名稱]
 
-> **⚠️ OPEN_SPEC DELTA 標記規範 (CRITICAL)**:
+> **⚠️ OPEN_SPEC DELTA 標記規範 (CRITICAL)**: 
 > 本文件是變更檔 (Delta)。所有的標題 (Requirement 或 Scenario) 都必須標註變更類型：
 > - `[ADDED]`：新增的需求或場景
 > - `[MODIFIED]`：修改現有需求或場景
@@ -12,7 +12,7 @@
 系統 **SHALL/MUST** [描述行為]。
 
 ## 2. 測試場景 (Scenarios)
-> **CRITICAL**: Scenarios 必須使用 4 個 hashtags (####) 以供 Superpowers 辨識，並緊接 Delta 標記。
+> **CRITICAL**: Scenarios 必須使用 4 個 hashtag (####) 以供 Superpowers 辨識，並緊接 Delta 標記。
 
 #### [ADDED/MODIFIED] Scenario: [正常路徑名稱]
 - **WHEN**: [初始條件/動作]
