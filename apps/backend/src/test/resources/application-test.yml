@@ -1,0 +1,38 @@
+# 測試環境配置
+# 使用 H2 in-memory database 取代 MySQL，加速測試執行
+
+server:
+  port: 0  # 隨機端口，避免衝突
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MYSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  mail:
+    host: localhost
+    port: 3025
+    username: test@test.com
+    password: test
+
+  sql:
+    init:
+      mode: never  # 測試用 JPA create-drop 自建 schema，不跑 data.sql
+
+jwt:
+  secret: testSecretKeyForUnitTestsOnlyMinimum32CharactersRequired123456
+  access-token-expiration: 3600000
+  refresh-token-expiration: 7200000
+
+springdotenv:
+  enabled: false
