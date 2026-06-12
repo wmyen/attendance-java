@@ -2,10 +2,10 @@ package com.attendance.service;
 
 import com.attendance.dto.overtime.OvertimeApplyRequest;
 import com.attendance.dto.overtime.OvertimeResponse;
-import com.attendance.entity.OvertimeRequest;
-import com.attendance.entity.RequestStatus;
-import com.attendance.entity.User;
+import com.attendance.entity.*;
 import com.attendance.exception.ResourceNotFoundException;
+import com.attendance.repository.LeaveBalanceRepository;
+import com.attendance.repository.LeaveTypeRepository;
 import com.attendance.repository.OvertimeRequestRepository;
 import com.attendance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.List;
 
 @Service
@@ -23,6 +27,10 @@ public class OvertimeService {
     private final OvertimeRequestRepository overtimeRequestRepository;
     private final UserRepository userRepository;
     private final MailService mailService;
+    private final LeaveTypeRepository leaveTypeRepository;
+    private final LeaveBalanceRepository leaveBalanceRepository;
+
+    private static final BigDecimal HOURS_PER_DAY = BigDecimal.valueOf(8);
 
     @Transactional
     public OvertimeResponse apply(@NonNull Long userId, OvertimeApplyRequest request) {
@@ -78,6 +86,9 @@ public class OvertimeService {
         req.setApprovedBy(manager);
         req.setApprovedAt(LocalDateTime.now());
 
+        // 補休自動產生：計算加班時數 → 轉換為天數 → 累加至 COMPENSATORY 假別餘額
+        generateCompensatoryLeave(req);
+
         OvertimeResponse response = toResponse(overtimeRequestRepository.save(req));
         mailService.sendOvertimeApprovalResult(req.getUser().getEmail(), true);
         return response;
@@ -100,6 +111,38 @@ public class OvertimeService {
         OvertimeResponse response = toResponse(overtimeRequestRepository.save(req));
         mailService.sendOvertimeApprovalResult(req.getUser().getEmail(), false);
         return response;
+    }
+
+    /**
+     * 加班核准時自動產生補休餘額。
+     * 計算加班時數 → 轉換為天數（8 小時 = 1 天）→ 累加至該年度的 COMPENSATORY 假別餘額。
+     */
+    private void generateCompensatoryLeave(OvertimeRequest overtimeRequest) {
+        leaveTypeRepository.findByCode("COMPENSATORY").ifPresent(compensatoryType -> {
+            long totalMinutes = Duration.between(overtimeRequest.getStartTime(), overtimeRequest.getEndTime()).toMinutes();
+            BigDecimal hours = BigDecimal.valueOf(totalMinutes)
+                    .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
+            BigDecimal days = hours.divide(HOURS_PER_DAY, 1, RoundingMode.HALF_UP);
+
+            int year = overtimeRequest.getStartTime().getYear();
+            Long userId = overtimeRequest.getUser().getId();
+            Long typeId = compensatoryType.getId();
+
+            LeaveBalance balance = leaveBalanceRepository
+                    .findByUserIdAndLeaveTypeIdAndYear(userId, typeId, year)
+                    .orElseGet(() -> {
+                        LeaveBalance newBalance = new LeaveBalance();
+                        newBalance.setUser(overtimeRequest.getUser());
+                        newBalance.setLeaveType(compensatoryType);
+                        newBalance.setYear(year);
+                        newBalance.setTotalDays(BigDecimal.ZERO);
+                        newBalance.setUsedDays(BigDecimal.ZERO);
+                        return newBalance;
+                    });
+
+            balance.setTotalDays(balance.getTotalDays().add(days));
+            leaveBalanceRepository.save(balance);
+        });
     }
 
     private OvertimeResponse toResponse(OvertimeRequest req) {

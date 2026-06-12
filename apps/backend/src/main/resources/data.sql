@@ -34,7 +34,7 @@ INSERT IGNORE INTO leave_types (id, name, code, is_paid, requires_doc) VALUES
 -- 3. 假別餘額（2026 年度）
 -- ⚠️ 使用者由 DataInitializer 在應用啟動時自動建立（確保密碼正確加密）
 -- -----------------------------------------------------------
-INSERT IGNORE INTO leave_balances (user_id, leave_type_id, year, total_days, used_days) VALUES
+INSERT IGNORE INTO leave_balances (user_id, leave_type_id, leave_year, total_days, used_days) VALUES
 -- 管理員
 (1, 1, 2026, 14.0, 0.0),  -- 特休 14 天
 (1, 2, 2026, 30.0, 0.0),  -- 病假 30 天

@@ -12,7 +12,7 @@ import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "leave_balances", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "leave_type_id", "year"})
+        @UniqueConstraint(columnNames = {"user_id", "leave_type_id", "leave_year"})
 })
 @Getter
 @Setter
@@ -35,7 +35,7 @@ public class LeaveBalance {
     @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
-    @Column(nullable = false)
+    @Column(name = "leave_year", nullable = false)
     private Integer year;
 
     @Column(name = "total_days", nullable = false, precision = 5, scale = 1)

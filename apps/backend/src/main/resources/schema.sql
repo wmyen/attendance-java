@@ -78,13 +78,13 @@ CREATE TABLE IF NOT EXISTS leave_balances (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     user_id       BIGINT      NOT NULL,
     leave_type_id BIGINT      NOT NULL,
-    year          INT         NOT NULL,
+    leave_year    INT         NOT NULL,
     total_days    DECIMAL(5,1) NOT NULL DEFAULT 0.0,
     used_days     DECIMAL(5,1) NOT NULL DEFAULT 0.0,
     PRIMARY KEY (id),
     CONSTRAINT fk_balance_user       FOREIGN KEY (user_id)       REFERENCES users(id),
     CONSTRAINT fk_balance_leave_type FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-    UNIQUE KEY uk_user_type_year (user_id, leave_type_id, year)
+    UNIQUE KEY uk_user_type_year (user_id, leave_type_id, leave_year)
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------------
