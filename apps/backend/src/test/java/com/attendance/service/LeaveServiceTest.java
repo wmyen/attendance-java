@@ -623,6 +623,155 @@ class LeaveServiceTest extends ServiceTestBase {
         }
     }
 
+    // ─── 預設代理人回退 ──────────────────────────────────────────
+
+    @Nested
+    @DisplayName("預設代理人回退（User.agent）")
+    class DefaultAgentTests {
+
+        @Test
+        @DisplayName("請假未指定代理人但使用者有預設代理人 → 自動使用預設代理人")
+        void apply_usesDefaultAgentWhenNotSpecified() {
+            employee.setAgent(agent);
+
+            LeaveApplyRequest request = new LeaveApplyRequest();
+            request.setLeaveTypeId(100L);
+            request.setStartTime(LocalDateTime.of(2026, 6, 15, 9, 0));
+            request.setEndTime(LocalDateTime.of(2026, 6, 15, 17, 0));
+            request.setReason("休假");
+            // agentId 為 null → 應使用 user 的預設代理人
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(employee));
+            when(leaveTypeRepository.findById(100L)).thenReturn(Optional.of(annualLeave));
+            when(leaveRequestRepository.save(any(LeaveRequest.class))).thenAnswer(inv -> {
+                LeaveRequest lr = inv.getArgument(0);
+                lr.setId(300L);
+                return lr;
+            });
+
+            LeaveResponse response = leaveService.apply(1L, request);
+
+            assertThat(response.getAgentId()).isEqualTo(2L);
+            assertThat(response.getAgentName()).isEqualTo("張代理人");
+
+            // Email 通知也應包含預設代理人
+            verify(mailService).sendLeaveApplicationNotification(
+                    eq("manager@test.com"), eq("李員工"), eq("特休"),
+                    anyString(), anyString(), eq("張代理人"));
+        }
+
+        @Test
+        @DisplayName("明確指定代理人 → 覆蓋預設代理人")
+        void apply_explicitAgentOverridesDefault() {
+            employee.setAgent(agent); // 預設代理人為「張代理人」
+
+            // 明確指定 admin（id=10）為代理人
+            User anotherUser = new User();
+            anotherUser.setId(10L);
+            anotherUser.setName("王主管");
+            anotherUser.setEmail("manager@test.com");
+
+            LeaveApplyRequest request = new LeaveApplyRequest();
+            request.setLeaveTypeId(100L);
+            request.setStartTime(LocalDateTime.of(2026, 6, 15, 9, 0));
+            request.setEndTime(LocalDateTime.of(2026, 6, 15, 17, 0));
+            request.setReason("休假");
+            request.setAgentId(10L); // 明確指定
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(employee));
+            when(leaveTypeRepository.findById(100L)).thenReturn(Optional.of(annualLeave));
+            when(userRepository.findById(10L)).thenReturn(Optional.of(anotherUser));
+            when(leaveRequestRepository.save(any(LeaveRequest.class))).thenAnswer(inv -> {
+                LeaveRequest lr = inv.getArgument(0);
+                lr.setId(301L);
+                return lr;
+            });
+
+            LeaveResponse response = leaveService.apply(1L, request);
+
+            // 應使用明確指定的代理人，而非預設
+            assertThat(response.getAgentId()).isEqualTo(10L);
+            assertThat(response.getAgentName()).isEqualTo("王主管");
+        }
+
+        @Test
+        @DisplayName("無預設代理人且未指定 → agentId 為 null")
+        void apply_noDefaultNoExplicit() {
+            employee.setAgent(null); // 無預設代理人
+
+            LeaveApplyRequest request = new LeaveApplyRequest();
+            request.setLeaveTypeId(100L);
+            request.setStartTime(LocalDateTime.of(2026, 6, 15, 9, 0));
+            request.setEndTime(LocalDateTime.of(2026, 6, 15, 17, 0));
+            request.setReason("休假");
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(employee));
+            when(leaveTypeRepository.findById(100L)).thenReturn(Optional.of(annualLeave));
+            when(leaveRequestRepository.save(any(LeaveRequest.class))).thenAnswer(inv -> {
+                LeaveRequest lr = inv.getArgument(0);
+                lr.setId(302L);
+                return lr;
+            });
+
+            LeaveResponse response = leaveService.apply(1L, request);
+
+            assertThat(response.getAgentId()).isNull();
+            assertThat(response.getAgentName()).isNull();
+        }
+
+        @Test
+        @DisplayName("請假含預設代理人 → Email 通知包含代理人姓名")
+        void apply_defaultAgent_emailNotification() {
+            employee.setAgent(agent);
+
+            LeaveApplyRequest request = new LeaveApplyRequest();
+            request.setLeaveTypeId(100L);
+            request.setStartTime(LocalDateTime.of(2026, 6, 15, 9, 0));
+            request.setEndTime(LocalDateTime.of(2026, 6, 15, 17, 0));
+            request.setReason("家中有事");
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(employee));
+            when(leaveTypeRepository.findById(100L)).thenReturn(Optional.of(annualLeave));
+            when(leaveRequestRepository.save(any(LeaveRequest.class))).thenAnswer(inv -> {
+                LeaveRequest lr = inv.getArgument(0);
+                lr.setId(303L);
+                return lr;
+            });
+
+            leaveService.apply(1L, request);
+
+            verify(mailService).sendLeaveApplicationNotification(
+                    eq("manager@test.com"), eq("李員工"), eq("特休"),
+                    anyString(), anyString(), eq("張代理人"));
+        }
+
+        @Test
+        @DisplayName("無代理人 → Email 通知代理人欄位為 null")
+        void apply_noAgent_emailNotificationNull() {
+            employee.setAgent(null);
+
+            LeaveApplyRequest request = new LeaveApplyRequest();
+            request.setLeaveTypeId(100L);
+            request.setStartTime(LocalDateTime.of(2026, 6, 15, 9, 0));
+            request.setEndTime(LocalDateTime.of(2026, 6, 15, 17, 0));
+            request.setReason("休假");
+
+            when(userRepository.findById(1L)).thenReturn(Optional.of(employee));
+            when(leaveTypeRepository.findById(100L)).thenReturn(Optional.of(annualLeave));
+            when(leaveRequestRepository.save(any(LeaveRequest.class))).thenAnswer(inv -> {
+                LeaveRequest lr = inv.getArgument(0);
+                lr.setId(304L);
+                return lr;
+            });
+
+            leaveService.apply(1L, request);
+
+            verify(mailService).sendLeaveApplicationNotification(
+                    eq("manager@test.com"), eq("李員工"), eq("特休"),
+                    anyString(), anyString(), eq(null));
+        }
+    }
+
     // ─── calculateLeaveDays（邊界案例）────────────────────────
 
     @Nested

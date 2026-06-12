@@ -51,6 +51,9 @@ public class LeaveService {
             User agent = userRepository.findById(Objects.requireNonNull(request.getAgentId()))
                     .orElseThrow(() -> new ResourceNotFoundException("代理人不存在"));
             leaveRequest.setAgent(agent);
+        } else if (user.getAgent() != null) {
+            // 未指定代理人時，自動使用使用者的預設代理人
+            leaveRequest.setAgent(user.getAgent());
         }
 
         LeaveResponse response = toResponse(leaveRequestRepository.save(leaveRequest));

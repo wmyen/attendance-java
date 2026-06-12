@@ -293,6 +293,127 @@ class UserServiceTest extends ServiceTestBase {
         }
     }
 
+    // ─── 代理人指定 (Agent) ─────────────────────────────────────
+
+    @Nested
+    @DisplayName("代理人指定（Agent）")
+    class AgentTests {
+
+        @Test
+        @DisplayName("建立使用者含代理人 — agent 正確設定")
+        void createUser_withAgent() {
+            UserCreateRequest req = new UserCreateRequest();
+            req.setEmail("agent-test@company.com");
+            req.setName("有代理人的員工");
+            req.setRole("EMPLOYEE");
+            req.setDeptId(1L);
+            req.setAgentId(2L); // managerUser
+
+            when(userRepository.findByEmail("agent-test@company.com")).thenReturn(Optional.empty());
+            when(departmentRepository.findById(1L)).thenReturn(Optional.of(itDept));
+            when(userRepository.findById(2L)).thenReturn(Optional.of(managerUser));
+            when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$encoded");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(4L);
+                return u;
+            });
+
+            UserResponse resp = userService.createUser(req);
+
+            assertThat(resp.getAgentId()).isEqualTo(2L);
+            assertThat(resp.getAgentName()).isEqualTo("王小明");
+        }
+
+        @Test
+        @DisplayName("建立使用者 — 代理人不存在 → 拋出異常")
+        void createUser_agentNotFound() {
+            UserCreateRequest req = new UserCreateRequest();
+            req.setEmail("agent-test@company.com");
+            req.setName("員工");
+            req.setRole("EMPLOYEE");
+            req.setDeptId(1L);
+            req.setAgentId(999L);
+
+            when(userRepository.findByEmail("agent-test@company.com")).thenReturn(Optional.empty());
+            when(departmentRepository.findById(1L)).thenReturn(Optional.of(itDept));
+            when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userService.createUser(req))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("指定的使用者不存在");
+        }
+
+        @Test
+        @DisplayName("建立使用者不指定代理人 — agentId 為 null")
+        void createUser_withoutAgent() {
+            UserCreateRequest req = new UserCreateRequest();
+            req.setEmail("no-agent@company.com");
+            req.setName("無代理人員工");
+            req.setRole("EMPLOYEE");
+
+            when(userRepository.findByEmail("no-agent@company.com")).thenReturn(Optional.empty());
+            when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$encoded");
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                u.setId(5L);
+                return u;
+            });
+
+            UserResponse resp = userService.createUser(req);
+
+            assertThat(resp.getAgentId()).isNull();
+            assertThat(resp.getAgentName()).isNull();
+        }
+
+        @Test
+        @DisplayName("更新使用者代理人 — agent 變更")
+        void updateUser_setAgent() {
+            UserUpdateRequest req = new UserUpdateRequest();
+            req.setAgentId(1L); // adminUser
+
+            when(userRepository.findById(3L)).thenReturn(Optional.of(employeeUser));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(adminUser));
+            when(userRepository.save(any(User.class))).thenReturn(employeeUser);
+
+            UserResponse resp = userService.updateUser(3L, req);
+
+            verify(userRepository).save(argThat(user ->
+                    user.getAgent() != null && user.getAgent().getId().equals(1L)));
+            assertThat(resp.getAgentId()).isEqualTo(1L);
+            assertThat(resp.getAgentName()).isEqualTo("系統管理員");
+        }
+
+        @Test
+        @DisplayName("取得含代理人的使用者 — 回傳 agentId/agentName")
+        void getUser_withAgent() {
+            employeeUser.setAgent(managerUser);
+
+            when(userRepository.findById(3L)).thenReturn(Optional.of(employeeUser));
+
+            UserResponse resp = userService.getUser(3L);
+
+            assertThat(resp.getAgentId()).isEqualTo(2L);
+            assertThat(resp.getAgentName()).isEqualTo("王小明");
+        }
+
+        @Test
+        @DisplayName("列表使用者含代理人 — UserResponse 包含代理人資訊")
+        void listUsers_withAgent() {
+            employeeUser.setAgent(managerUser);
+            Page<User> page = new PageImpl<>(List.of(employeeUser));
+
+            when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
+
+            UserListResponse resp = userService.listUsers(0, 20, null);
+
+            assertThat(resp.getContent()).hasSize(1);
+            UserResponse userResp = resp.getContent().get(0);
+            assertThat(userResp.getAgentId()).isEqualTo(2L);
+            assertThat(userResp.getAgentName()).isEqualTo("王小明");
+        }
+    }
+
     // ─── deactivateUser ───────────────────────────────────────
 
     @Nested

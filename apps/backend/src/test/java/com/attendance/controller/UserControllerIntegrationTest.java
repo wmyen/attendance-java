@@ -248,6 +248,103 @@ class UserControllerIntegrationTest extends com.attendance.IntegrationTest {
         }
     }
 
+    // ─── 代理人 (Agent) ──────────────────────────────────────────
+
+    @Nested
+    @DisplayName("代理人指定（Agent）")
+    class AgentTests {
+
+        @Test
+        @DisplayName("ADMIN 建立使用者含代理人 — 回傳 agentId + agentName")
+        void createUser_withAgent() throws Exception {
+            UserCreateRequest req = new UserCreateRequest();
+            req.setEmail("agent-emp@test.com");
+            req.setName("有代理人員工");
+            req.setRole("EMPLOYEE");
+            req.setDeptId(testDept.getId());
+            req.setManagerId(adminUser.getId());
+            req.setAgentId(adminUser.getId());
+
+            mockMvc.perform(post("/api/v1/users")
+                            .header("Authorization", "Bearer " + adminToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.agentId").value(adminUser.getId()))
+                    .andExpect(jsonPath("$.agentName").value("管理員"));
+        }
+
+        @Test
+        @DisplayName("GET 使用者 — 回傳代理人資訊")
+        void getUser_withAgent() throws Exception {
+            // 先建立有代理人的使用者
+            employeeUser.setAgent(adminUser);
+            userRepository.save(employeeUser);
+
+            mockMvc.perform(get("/api/v1/users/{id}", employeeUser.getId())
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.agentId").value(adminUser.getId()))
+                    .andExpect(jsonPath("$.agentName").value("管理員"));
+        }
+
+        @Test
+        @DisplayName("PUT 更新代理人 — 回傳新代理人資訊")
+        void updateUser_agent() throws Exception {
+            // 建立第三個使用者作為新代理人
+            User newAgent = new User();
+            newAgent.setEmail("new-agent@test.com");
+            newAgent.setName("新代理人");
+            newAgent.setRole(UserRole.EMPLOYEE);
+            newAgent.setDepartment(testDept);
+            newAgent.setPassword(passwordEncoder.encode("Pass@2026"));
+            newAgent.setIsActive(true);
+            newAgent.setMustChangePassword(false);
+            newAgent = userRepository.save(newAgent);
+
+            UserUpdateRequest req = new UserUpdateRequest();
+            req.setAgentId(newAgent.getId());
+
+            mockMvc.perform(put("/api/v1/users/{id}", employeeUser.getId())
+                            .header("Authorization", "Bearer " + adminToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.agentId").value(newAgent.getId()))
+                    .andExpect(jsonPath("$.agentName").value("新代理人"));
+        }
+
+        @Test
+        @DisplayName("列表使用者 — 包含代理人欄位")
+        void listUsers_showsAgentInfo() throws Exception {
+            employeeUser.setAgent(adminUser);
+            userRepository.save(employeeUser);
+
+            mockMvc.perform(get("/api/v1/users")
+                            .param("search", "員工")
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[0].agentId").value(adminUser.getId()))
+                    .andExpect(jsonPath("$.content[0].agentName").value("管理員"));
+        }
+
+        @Test
+        @DisplayName("建立使用者代理人不存在 — 回傳 400")
+        void createUser_agentNotFound() throws Exception {
+            UserCreateRequest req = new UserCreateRequest();
+            req.setEmail("bad-agent@test.com");
+            req.setName("代理人不存在");
+            req.setRole("EMPLOYEE");
+            req.setAgentId(99999L);
+
+            mockMvc.perform(post("/api/v1/users")
+                            .header("Authorization", "Bearer " + adminToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
     // ─── DELETE /api/v1/users/{id} ───────────────────────────────
 
     @Nested

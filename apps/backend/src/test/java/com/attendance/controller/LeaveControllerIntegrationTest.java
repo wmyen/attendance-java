@@ -489,4 +489,171 @@ class LeaveControllerIntegrationTest extends IntegrationTest {
                     .andExpect(jsonPath("$", hasSize(0)));
         }
     }
+
+    // ─── 代理人制度 (Agent) ───────────────────────────────────
+
+    @Nested
+    @DisplayName("代理人制度（Agent）")
+    class AgentTests {
+
+        @Test
+        @DisplayName("使用者有預設代理人 → 請假時自動填入代理人")
+        void apply_usesDefaultAgent() throws Exception {
+            // 設定員工的預設代理人為 admin
+            employee.setAgent(admin);
+            userRepository.save(employee);
+
+            // 請假時不指定 agentId → 應自動使用預設代理人
+            String body = """
+                    {
+                        "leaveTypeId": %d,
+                        "startTime": "2026-06-25T09:00:00",
+                        "endTime": "2026-06-25T17:00:00",
+                        "reason": "休假"
+                    }
+                    """.formatted(annualLeave.getId());
+
+            mockMvc.perform(post("/api/v1/leaves")
+                            .header("Authorization", "Bearer " + employeeToken)
+                            .contentType("application/json")
+                            .content(body))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.agentId").value(admin.getId()))
+                    .andExpect(jsonPath("$.agentName").value("請假管理員"));
+        }
+
+        @Test
+        @DisplayName("明確指定代理人 → 覆蓋預設代理人")
+        void apply_explicitAgentOverridesDefault() throws Exception {
+            // 設定員工的預設代理人為 admin
+            employee.setAgent(admin);
+            userRepository.save(employee);
+
+            // 但請假時明確指定 manager 為代理人
+            String body = """
+                    {
+                        "leaveTypeId": %d,
+                        "startTime": "2026-06-25T09:00:00",
+                        "endTime": "2026-06-25T17:00:00",
+                        "reason": "休假",
+                        "agentId": %d
+                    }
+                    """.formatted(annualLeave.getId(), manager.getId());
+
+            mockMvc.perform(post("/api/v1/leaves")
+                            .header("Authorization", "Bearer " + employeeToken)
+                            .contentType("application/json")
+                            .content(body))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.agentId").value(manager.getId()))
+                    .andExpect(jsonPath("$.agentName").value("請假主管"));
+        }
+
+        @Test
+        @DisplayName("無預設代理人且未指定 → agentId 為 null")
+        void apply_noDefaultNoExplicit() throws Exception {
+            // employee 沒有預設代理人（setUp 中未設定 agent）
+            String body = """
+                    {
+                        "leaveTypeId": %d,
+                        "startTime": "2026-06-25T09:00:00",
+                        "endTime": "2026-06-25T17:00:00",
+                        "reason": "休假"
+                    }
+                    """.formatted(annualLeave.getId());
+
+            mockMvc.perform(post("/api/v1/leaves")
+                            .header("Authorization", "Bearer " + employeeToken)
+                            .contentType("application/json")
+                            .content(body))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.agentId").isEmpty())
+                    .andExpect(jsonPath("$.agentName").isEmpty());
+        }
+
+        @Test
+        @DisplayName("待簽核假單 — 包含代理人資訊")
+        void pendingLeaves_includeAgentInfo() throws Exception {
+            // 設定預設代理人
+            employee.setAgent(admin);
+            userRepository.save(employee);
+
+            // 請假（自動帶入代理人）
+            String body = """
+                    {
+                        "leaveTypeId": %d,
+                        "startTime": "2026-06-25T09:00:00",
+                        "endTime": "2026-06-25T17:00:00",
+                        "reason": "休假"
+                    }
+                    """.formatted(annualLeave.getId());
+
+            mockMvc.perform(post("/api/v1/leaves")
+                            .header("Authorization", "Bearer " + employeeToken)
+                            .contentType("application/json")
+                            .content(body))
+                    .andExpect(status().isOk());
+
+            // 主管查詢待簽核 → 應包含代理人
+            mockMvc.perform(get("/api/v1/leaves/pending")
+                            .header("Authorization", "Bearer " + managerToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].agentId").value(admin.getId()))
+                    .andExpect(jsonPath("$[0].agentName").value("請假管理員"));
+        }
+
+        @Test
+        @DisplayName("核准含代理人的假單 → 核准後仍保留代理人資訊")
+        void approve_preservesAgentInfo() throws Exception {
+            // 請假含代理人
+            String body = """
+                    {
+                        "leaveTypeId": %d,
+                        "startTime": "2026-06-25T09:00:00",
+                        "endTime": "2026-06-25T17:00:00",
+                        "reason": "休假",
+                        "agentId": %d
+                    }
+                    """.formatted(annualLeave.getId(), manager.getId());
+
+            MvcResult result = mockMvc.perform(post("/api/v1/leaves")
+                            .header("Authorization", "Bearer " + employeeToken)
+                            .contentType("application/json")
+                            .content(body))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseJson = result.getResponse().getContentAsString();
+            Long leaveId = objectMapper.readTree(responseJson).get("id").asLong();
+
+            // 核准
+            mockMvc.perform(put("/api/v1/leaves/" + leaveId + "/approve")
+                            .header("Authorization", "Bearer " + managerToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("APPROVED"))
+                    .andExpect(jsonPath("$.agentId").value(manager.getId()))
+                    .andExpect(jsonPath("$.agentName").value("請假主管"));
+        }
+
+        @Test
+        @DisplayName("代理人不存在 — 回傳 404")
+        void apply_agentNotFound() throws Exception {
+            String body = """
+                    {
+                        "leaveTypeId": %d,
+                        "startTime": "2026-06-25T09:00:00",
+                        "endTime": "2026-06-25T17:00:00",
+                        "reason": "測試",
+                        "agentId": 99999
+                    }
+                    """.formatted(annualLeave.getId());
+
+            mockMvc.perform(post("/api/v1/leaves")
+                            .header("Authorization", "Bearer " + employeeToken)
+                            .contentType("application/json")
+                            .content(body))
+                    .andExpect(status().isNotFound());
+        }
+    }
 }
