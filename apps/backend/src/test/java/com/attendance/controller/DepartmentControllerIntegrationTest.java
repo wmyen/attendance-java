@@ -149,6 +149,20 @@ class DepartmentControllerIntegrationTest extends com.attendance.IntegrationTest
                             .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest());
         }
+
+        @Test
+        @DisplayName("部門名稱重複 — 回傳 400")
+        void createFail_duplicateName() throws Exception {
+            DepartmentRequest req = new DepartmentRequest();
+            req.setName("測試部"); // 已存在於 setUp
+
+            mockMvc.perform(post("/api/v1/departments")
+                            .header("Authorization", "Bearer " + adminToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(req)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("部門名稱已存在"));
+        }
     }
 
     // ─── PUT /api/v1/departments/{id} ────────────────────────────

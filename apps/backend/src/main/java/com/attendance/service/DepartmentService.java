@@ -26,6 +26,9 @@ public class DepartmentService {
 
     @Transactional
     public DepartmentResponse create(DepartmentRequest request) {
+        if (departmentRepository.findByName(request.getName()).isPresent()) {
+            throw new IllegalArgumentException("部門名稱已存在");
+        }
         Department dept = new Department();
         dept.setName(request.getName());
         return toResponse(departmentRepository.save(dept));

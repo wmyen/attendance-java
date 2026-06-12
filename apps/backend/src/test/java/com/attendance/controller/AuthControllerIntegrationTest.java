@@ -99,7 +99,7 @@ class AuthControllerIntegrationTest extends com.attendance.IntegrationTest {
         }
 
         @Test
-        @DisplayName("帳號不存在 — 回傳 401/400")
+        @DisplayName("帳號不存在 — 回傳 401")
         void loginFail_notFound() throws Exception {
             LoginRequest req = new LoginRequest();
             req.setEmail("nobody@test.com");
@@ -108,11 +108,11 @@ class AuthControllerIntegrationTest extends com.attendance.IntegrationTest {
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
-        @DisplayName("密碼錯誤 — 回傳 400")
+        @DisplayName("密碼錯誤 — 回傳 401")
         void loginFail_wrongPassword() throws Exception {
             LoginRequest req = new LoginRequest();
             req.setEmail("active@test.com");
@@ -121,11 +121,11 @@ class AuthControllerIntegrationTest extends com.attendance.IntegrationTest {
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
-        @DisplayName("帳號已停用 — 回傳 400")
+        @DisplayName("帳號已停用 — 回傳 401")
         void loginFail_deactivated() throws Exception {
             LoginRequest req = new LoginRequest();
             req.setEmail("deactivated@test.com");
@@ -134,7 +134,7 @@ class AuthControllerIntegrationTest extends com.attendance.IntegrationTest {
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
@@ -176,7 +176,7 @@ class AuthControllerIntegrationTest extends com.attendance.IntegrationTest {
         }
 
         @Test
-        @DisplayName("無效 refresh token — 回傳 400")
+        @DisplayName("無效 refresh token — 回傳 401")
         void refreshFail_invalidToken() throws Exception {
             RefreshRequest req = new RefreshRequest();
             req.setRefreshToken("invalid-token-string");
@@ -184,7 +184,7 @@ class AuthControllerIntegrationTest extends com.attendance.IntegrationTest {
             mockMvc.perform(post("/api/v1/auth/refresh")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(req)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
     }
 

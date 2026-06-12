@@ -52,3 +52,12 @@
 - [x] 7.1 執行全體測試（mvn test）— 230 tests, 0 failures
 - [x] 7.2 確認測試覆蓋率達標 — 整體 95% 指令覆蓋率 / 86% 分支覆蓋率
 - [x] 7.3 文件同步更新
+
+## 8. 審查與驗收 (Review & Acceptance)
+- [x] 8.1 逐一對照 spec.md 場景與實作程式碼（39+ scenarios 全部通過）
+- [x] 8.2 驗證 design.md 4 個技術決策一致性
+- [x] 8.3 修復認證失敗回傳碼（400→401，新增 AuthenticationFailedException）
+- [x] 8.4 修復部門名稱重複回傳碼（500→400，Service 層檢查 + ExceptionHandler）
+- [x] 8.5 新增測試覆蓋修復項目（+2 tests → 232 total）
+- [x] 8.6 完成驗收測試：後端 232 tests 全通 + 前端 build 成功
+- [x] 8.7 完成 review.md 全部檢查項目 — **APPROVED**

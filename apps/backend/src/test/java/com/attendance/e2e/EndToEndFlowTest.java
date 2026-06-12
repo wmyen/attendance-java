@@ -689,7 +689,7 @@ class EndToEndFlowTest extends IntegrationTest {
         }
 
         @Test
-        @DisplayName("無效 Refresh Token — 回傳 400")
+        @DisplayName("無效 Refresh Token — 回傳 401")
         void invalidRefreshToken() throws Exception {
             String refreshBody = """
                     {
@@ -700,7 +700,7 @@ class EndToEndFlowTest extends IntegrationTest {
             mockMvc.perform(post("/api/v1/auth/refresh")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(refreshBody))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
@@ -748,7 +748,7 @@ class EndToEndFlowTest extends IntegrationTest {
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginReq)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test

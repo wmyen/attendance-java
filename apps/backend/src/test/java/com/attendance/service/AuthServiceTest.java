@@ -4,6 +4,7 @@ import com.attendance.dto.auth.*;
 import com.attendance.entity.Department;
 import com.attendance.entity.User;
 import com.attendance.entity.UserRole;
+import com.attendance.exception.AuthenticationFailedException;
 import com.attendance.repository.UserRepository;
 import com.attendance.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +76,7 @@ class AuthServiceTest extends ServiceTestBase {
         }
 
         @Test
-        @DisplayName("帳號不存在 — 拋出 IllegalArgumentException")
+        @DisplayName("帳號不存在 — 拋出 AuthenticationFailedException (401)")
         void loginFail_userNotFound() {
             LoginRequest req = new LoginRequest();
             req.setEmail("nobody@company.com");
@@ -84,12 +85,12 @@ class AuthServiceTest extends ServiceTestBase {
             when(userRepository.findByEmail("nobody@company.com")).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> authService.login(req))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(AuthenticationFailedException.class)
                     .hasMessageContaining("帳號或密碼錯誤");
         }
 
         @Test
-        @DisplayName("帳號已停用 — 拋出 IllegalArgumentException")
+        @DisplayName("帳號已停用 — 拋出 AuthenticationFailedException (401)")
         void loginFail_userDeactivated() {
             activeUser.setIsActive(false);
             LoginRequest req = new LoginRequest();
@@ -99,12 +100,12 @@ class AuthServiceTest extends ServiceTestBase {
             when(userRepository.findByEmail("admin@company.com")).thenReturn(Optional.of(activeUser));
 
             assertThatThrownBy(() -> authService.login(req))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(AuthenticationFailedException.class)
                     .hasMessageContaining("帳號已停用");
         }
 
         @Test
-        @DisplayName("密碼錯誤 — 拋出 IllegalArgumentException")
+        @DisplayName("密碼錯誤 — 拋出 AuthenticationFailedException (401)")
         void loginFail_wrongPassword() {
             LoginRequest req = new LoginRequest();
             req.setEmail("admin@company.com");
@@ -114,7 +115,7 @@ class AuthServiceTest extends ServiceTestBase {
             when(passwordEncoder.matches("WrongPassword", ENCODED_PASSWORD)).thenReturn(false);
 
             assertThatThrownBy(() -> authService.login(req))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(AuthenticationFailedException.class)
                     .hasMessageContaining("帳號或密碼錯誤");
         }
     }
@@ -155,7 +156,7 @@ class AuthServiceTest extends ServiceTestBase {
             when(jwtTokenProvider.validateToken("bad-token")).thenReturn(false);
 
             assertThatThrownBy(() -> authService.refresh(req))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(AuthenticationFailedException.class)
                     .hasMessageContaining("無效的 refresh token");
         }
 

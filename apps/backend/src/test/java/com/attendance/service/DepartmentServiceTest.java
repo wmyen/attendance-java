@@ -75,6 +75,7 @@ class DepartmentServiceTest extends ServiceTestBase {
             DepartmentRequest req = new DepartmentRequest();
             req.setName("研發部");
 
+            when(departmentRepository.findByName("研發部")).thenReturn(Optional.empty());
             when(departmentRepository.save(any(Department.class))).thenAnswer(inv -> {
                 Department d = inv.getArgument(0);
                 d.setId(5L);
@@ -85,6 +86,19 @@ class DepartmentServiceTest extends ServiceTestBase {
 
             assertThat(resp.getName()).isEqualTo("研發部");
             verify(departmentRepository).save(argThat(d -> "研發部".equals(d.getName())));
+        }
+
+        @Test
+        @DisplayName("部門名稱重複 — 拋出異常")
+        void createFail_duplicateName() {
+            DepartmentRequest req = new DepartmentRequest();
+            req.setName("資訊部");
+
+            when(departmentRepository.findByName("資訊部")).thenReturn(Optional.of(itDept));
+
+            assertThatThrownBy(() -> departmentService.create(req))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("部門名稱已存在");
         }
     }
 

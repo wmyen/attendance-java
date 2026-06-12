@@ -2,6 +2,7 @@ package com.attendance.service;
 
 import com.attendance.dto.auth.*;
 import com.attendance.entity.User;
+import com.attendance.exception.AuthenticationFailedException;
 import com.attendance.repository.UserRepository;
 import com.attendance.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +22,14 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("帳號或密碼錯誤"));
+                .orElseThrow(() -> new AuthenticationFailedException("帳號或密碼錯誤"));
 
         if (!user.getIsActive()) {
-            throw new IllegalArgumentException("帳號已停用");
+            throw new AuthenticationFailedException("帳號已停用");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("帳號或密碼錯誤");
+            throw new AuthenticationFailedException("帳號或密碼錯誤");
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(
@@ -45,7 +46,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponse refresh(RefreshRequest request) {
         if (!jwtTokenProvider.validateToken(request.getRefreshToken())) {
-            throw new IllegalArgumentException("無效的 refresh token");
+            throw new AuthenticationFailedException("無效的 refresh token");
         }
 
         Long userId = jwtTokenProvider.getUserId(request.getRefreshToken());

@@ -81,6 +81,16 @@
 9. [Fix] admin/Users.vue 新增主管/代理人選擇欄位
 10. [Verify] 後端 230 測試全通 + 前端 build 成功
 
+### Phase 8: 審查與驗收 (Review & Acceptance)
+1. [Verify] 逐一對照 spec.md 39+ 場景與後端實作程式碼
+2. [Verify] design.md 4 個技術決策實作一致性
+3. [Fix] 認證失敗回傳碼 400→401（新增 AuthenticationFailedException）
+4. [Fix] 部門名稱重複 500→400（Service 層檢查 + DataIntegrityViolation handler）
+5. [Test] 新增部門名稱重複單元測試 + 整合測試（+2 tests）
+6. [Verify] 後端 232 tests, 0 failures ✅
+7. [Verify] 前端 TypeScript + Vite build 成功 ✅
+8. [Docs] 完成 review.md 全部檢查項目 — **APPROVED**
+
 ## 3. 提交紀錄 (Commits)
 - `test: add database initialization scripts (schema + seed data)`
 - `test: add Auth/User/Department service and controller tests`
@@ -91,3 +101,4 @@
 - `chore: verify E2E user flows and role permissions`
 - `chore: add JaCoCo coverage report, verify 95% coverage (Phase 6)`
 - `fix: add userName to leave/overtime responses, add brief users endpoint for agent selection (Phase 7)`
+- `fix: auth failures return 401, dept duplicate name returns 400 (Phase 8 review)`
