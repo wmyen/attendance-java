@@ -272,7 +272,8 @@ class LeaveServiceTest extends ServiceTestBase {
             // 16 小時 / 8 = 2.0 天
             assertThat(annualBalance.getUsedDays()).isEqualByComparingTo(new BigDecimal("2.0"));
 
-            verify(mailService).sendLeaveApprovalResult(eq("emp@test.com"), eq(true), eq("特休"));
+            verify(mailService).sendLeaveApprovalResult(eq("emp@test.com"), eq(true), eq("特休"),
+                    eq("2026-06-15T09:00"), eq("2026-06-16T01:00"));
         }
 
         @Test
@@ -442,7 +443,8 @@ class LeaveServiceTest extends ServiceTestBase {
             assertThat(response.getApprovedByName()).isEqualTo("王主管");
             assertThat(response.getApprovedAt()).isNotNull();
 
-            verify(mailService).sendLeaveApprovalResult(eq("emp@test.com"), eq(false), eq("特休"));
+            verify(mailService).sendLeaveApprovalResult(eq("emp@test.com"), eq(false), eq("特休"),
+                    eq("2026-06-15T09:00"), eq("2026-06-16T18:00"));
         }
 
         @Test

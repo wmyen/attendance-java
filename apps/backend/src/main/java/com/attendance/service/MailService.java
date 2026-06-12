@@ -2,6 +2,7 @@ package com.attendance.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -19,6 +20,9 @@ public class MailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+
+    @Value("${spring.mail.from:noreply@attendance-system.com}")
+    private String fromAddress;
 
     @Async
     public void sendNewUserCredentials(String toEmail, String name, String password) {
@@ -42,10 +46,13 @@ public class MailService {
     }
 
     @Async
-    public void sendLeaveApprovalResult(String applicantEmail, boolean approved, String leaveTypeName) {
+    public void sendLeaveApprovalResult(String applicantEmail, boolean approved,
+            String leaveTypeName, String startTime, String endTime) {
         Context context = new Context();
         context.setVariable("approved", approved);
         context.setVariable("leaveTypeName", leaveTypeName);
+        context.setVariable("startTime", startTime);
+        context.setVariable("endTime", endTime);
         String subject = approved ? "考勤系統 — 請假已核准" : "考勤系統 — 請假已駁回";
         sendHtmlEmail(applicantEmail, subject, "email/leave-result", context);
     }
@@ -61,9 +68,12 @@ public class MailService {
     }
 
     @Async
-    public void sendOvertimeApprovalResult(String applicantEmail, boolean approved) {
+    public void sendOvertimeApprovalResult(String applicantEmail, boolean approved,
+            String startTime, String endTime) {
         Context context = new Context();
         context.setVariable("approved", approved);
+        context.setVariable("startTime", startTime);
+        context.setVariable("endTime", endTime);
         String subject = approved ? "考勤系統 — 加班已核准" : "考勤系統 — 加班已駁回";
         sendHtmlEmail(applicantEmail, subject, "email/overtime-result", context);
     }
@@ -73,6 +83,7 @@ public class MailService {
             String htmlContent = templateEngine.process(template, context);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress);
             helper.setTo(Objects.requireNonNull(to));
             helper.setSubject(Objects.requireNonNull(subject));
             helper.setText(Objects.requireNonNull(htmlContent), true);

@@ -90,7 +90,8 @@ public class OvertimeService {
         generateCompensatoryLeave(req);
 
         OvertimeResponse response = toResponse(overtimeRequestRepository.save(req));
-        mailService.sendOvertimeApprovalResult(req.getUser().getEmail(), true);
+        mailService.sendOvertimeApprovalResult(req.getUser().getEmail(), true,
+                req.getStartTime().toString(), req.getEndTime().toString());
         return response;
     }
 
@@ -109,7 +110,8 @@ public class OvertimeService {
         req.setApprovedAt(LocalDateTime.now());
 
         OvertimeResponse response = toResponse(overtimeRequestRepository.save(req));
-        mailService.sendOvertimeApprovalResult(req.getUser().getEmail(), false);
+        mailService.sendOvertimeApprovalResult(req.getUser().getEmail(), false,
+                req.getStartTime().toString(), req.getEndTime().toString());
         return response;
     }
 

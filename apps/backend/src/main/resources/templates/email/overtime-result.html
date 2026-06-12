@@ -1,11 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
-<div style="max-width:600px;margin:0 auto;font-family:sans-serif;padding:20px;">
-    <h2>考勤管理系統 — 加班簽核結果</h2>
-    <p>您的加班申請已簽核。</p>
-    <p th:if="${approved}" style="color:#27ae60;font-size:18px;font-weight:bold;">&#10003; 核准</p>
-    <p th:unless="${approved}" style="color:#e74c3c;font-size:18px;font-weight:bold;">&#10007; 駁回</p>
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f6f9;">
+<div style="max-width:600px;margin:0 auto;font-family:'Helvetica Neue',Arial,sans-serif;">
+
+  <!-- Header -->
+  <div style="background:#2c3e50;padding:24px 30px;border-radius:8px 8px 0 0;">
+    <h1 style="margin:0;color:#fff;font-size:22px;">📋 加班簽核結果</h1>
+  </div>
+
+  <!-- Body -->
+  <div style="background:#fff;padding:30px;border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0;">
+    <p style="font-size:16px;color:#333;">您的加班申請已簽核。</p>
+
+    <table style="border-collapse:collapse;width:100%;margin:16px 0;">
+      <tr>
+        <td style="padding:12px 16px;border:1px solid #e0e0e0;background:#f8f9fa;font-weight:bold;width:120px;">加班開始</td>
+        <td style="padding:12px 16px;border:1px solid #e0e0e0;" th:text="${startTime}">開始</td>
+      </tr>
+      <tr>
+        <td style="padding:12px 16px;border:1px solid #e0e0e0;background:#f8f9fa;font-weight:bold;">加班結束</td>
+        <td style="padding:12px 16px;border:1px solid #e0e0e0;" th:text="${endTime}">結束</td>
+      </tr>
+    </table>
+
+    <div th:if="${approved}" style="background:#d4edda;border-left:4px solid #27ae60;padding:16px 18px;margin:20px 0;border-radius:4px;">
+      <p style="margin:0;color:#155724;font-size:18px;font-weight:bold;">✅ 核准</p>
+    </div>
+    <div th:unless="${approved}" style="background:#f8d7da;border-left:4px solid #e74c3c;padding:16px 18px;margin:20px 0;border-radius:4px;">
+      <p style="margin:0;color:#721c24;font-size:18px;font-weight:bold;">❌ 駁回</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:#f4f6f9;padding:16px 30px;border-radius:0 0 8px 8px;text-align:center;">
+    <p style="margin:0;color:#999;font-size:13px;">此信件由考勤管理系統自動發送，請勿直接回覆。</p>
+  </div>
+
 </div>
 </body>
 </html>

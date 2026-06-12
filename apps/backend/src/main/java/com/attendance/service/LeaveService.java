@@ -116,7 +116,8 @@ public class LeaveService {
         req.setApprovedAt(LocalDateTime.now());
 
         LeaveResponse response = toResponse(leaveRequestRepository.save(req));
-        mailService.sendLeaveApprovalResult(req.getUser().getEmail(), true, req.getLeaveType().getName());
+        mailService.sendLeaveApprovalResult(req.getUser().getEmail(), true, req.getLeaveType().getName(),
+                req.getStartTime().toString(), req.getEndTime().toString());
         return response;
     }
 
@@ -135,7 +136,8 @@ public class LeaveService {
         req.setApprovedAt(LocalDateTime.now());
 
         LeaveResponse response = toResponse(leaveRequestRepository.save(req));
-        mailService.sendLeaveApprovalResult(req.getUser().getEmail(), false, req.getLeaveType().getName());
+        mailService.sendLeaveApprovalResult(req.getUser().getEmail(), false, req.getLeaveType().getName(),
+                req.getStartTime().toString(), req.getEndTime().toString());
         return response;
     }
 

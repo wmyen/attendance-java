@@ -28,6 +28,7 @@ spring:
     port: 587
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
+    from: ${MAIL_FROM:noreply@attendance-system.com}
     properties:
       mail:
         smtp:

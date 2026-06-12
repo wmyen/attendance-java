@@ -168,7 +168,8 @@ class OvertimeServiceTest extends ServiceTestBase {
             assertThat(response.getApprovedByName()).isEqualTo("王主管");
             assertThat(response.getApprovedAt()).isNotNull();
 
-            verify(mailService).sendOvertimeApprovalResult(eq("emp@test.com"), eq(true));
+            verify(mailService).sendOvertimeApprovalResult(eq("emp@test.com"), eq(true),
+                    eq("2026-06-15T18:00"), eq("2026-06-15T22:00"));
         }
 
         @Test
@@ -241,7 +242,8 @@ class OvertimeServiceTest extends ServiceTestBase {
             assertThat(response.getApprovedByName()).isEqualTo("王主管");
             assertThat(response.getApprovedAt()).isNotNull();
 
-            verify(mailService).sendOvertimeApprovalResult(eq("emp@test.com"), eq(false));
+            verify(mailService).sendOvertimeApprovalResult(eq("emp@test.com"), eq(false),
+                    eq("2026-06-15T18:00"), eq("2026-06-15T22:00"));
         }
 
         @Test
