@@ -58,7 +58,16 @@
 1. [Verify] 完整使用者流程：ADMIN 建立使用者 → 使用者登入改密碼 → 打卡 → 請假 → 主管簽核
 2. [Verify] 角色權限隔離：EMPLOYEE 不能存取 ADMIN/MANAGER 功能
 3. [Verify] 邊界案例：重複打卡、餘額不足、無效 Token、過期 Refresh
-4. [Code] 執行全體測試 `mvn test`，確認全部通過
+4. [Code] 執行全體測試 `mvn test`，確認全部通過（230 tests）
+
+### Phase 6: 驗證與清理
+1. [Verify] 執行全體測試 `mvn clean test` — 230 tests, 0 failures, 0 errors
+2. [Code] 加入 JaCoCo 覆蓋率插件，產生覆蓋率報告
+3. [Verify] 覆蓋率達標 — 整體 95% 指令覆蓋率 / 86% 分支覆蓋率
+   - Service 層：99% 指令 / 95% 分支
+   - Controller 層：98% 指令 / 77% 分支
+   - Security 層：93% 指令 / 87% 分支
+4. [Code] 文件同步更新 — tasks.md 全部標記完成、plan.md 更新
 
 ## 3. 提交紀錄 (Commits)
 - `test: add database initialization scripts (schema + seed data)`
@@ -68,3 +77,4 @@
 - `feat: implement compensatory leave auto-generation on overtime approval`
 - `test: add agent system tests`
 - `chore: verify E2E user flows and role permissions`
+- `chore: add JaCoCo coverage report, verify 95% coverage (Phase 6)`
