@@ -69,6 +69,18 @@
    - Security 層：93% 指令 / 87% 分支
 4. [Code] 文件同步更新 — tasks.md 全部標記完成、plan.md 更新
 
+### Phase 7: 前端驗證
+1. [Verify] 前端 TypeScript 編譯 + Vite 建置成功（32 個原始碼檔案）
+2. [Verify] API 層 7 個模組端點路徑 + DTO 欄位與後端 Controller 完全一致
+3. [Verify] Router 路由守衛：公開頁面、角色權限、未登入導向正確
+4. [Verify] 5 個 Pinia Stores 狀態管理正確
+5. [Verify] 17 個 Vue 頁面元件完整性
+6. [Fix] LeaveResponse/OvertimeResponse 新增 userId、userName 欄位
+7. [Fix] 新增 GET /api/v1/users/brief 端點（所有已認證使用者可用）
+8. [Fix] leaves/Apply.vue 改用 /users/brief 載入代理人下拉選單
+9. [Fix] admin/Users.vue 新增主管/代理人選擇欄位
+10. [Verify] 後端 230 測試全通 + 前端 build 成功
+
 ## 3. 提交紀錄 (Commits)
 - `test: add database initialization scripts (schema + seed data)`
 - `test: add Auth/User/Department service and controller tests`
@@ -78,3 +90,4 @@
 - `test: add agent system tests`
 - `chore: verify E2E user flows and role permissions`
 - `chore: add JaCoCo coverage report, verify 95% coverage (Phase 6)`
+- `fix: add userName to leave/overtime responses, add brief users endpoint for agent selection (Phase 7)`
