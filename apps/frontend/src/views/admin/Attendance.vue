@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getMonthly } from '../../api/attendance'
-import { getUsers } from '../../api/users'
+import request from '../../api/request'
 
 const records = ref<any[]>([])
 const selectedMonth = ref('')
@@ -53,8 +53,8 @@ async function fetchData() {
 }
 
 onMounted(async () => {
-  const { data } = await getUsers({ page: 0, size: 100 })
-  userList.value = data.content || []
+  const { data } = await request.get('/users/brief')
+  userList.value = data
   const now = new Date()
   selectedMonth.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   fetchData()

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 public class LeaveResponse {
 
     private Long id;
+    private Long userId;
+    private String userName;
     private String leaveTypeName;
     private String leaveTypeCode;
     private LocalDateTime startTime;

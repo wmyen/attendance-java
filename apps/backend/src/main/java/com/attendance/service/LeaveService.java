@@ -157,6 +157,8 @@ public class LeaveService {
     private LeaveResponse toResponse(LeaveRequest req) {
         LeaveResponse resp = new LeaveResponse();
         resp.setId(req.getId());
+        resp.setUserId(req.getUser().getId());
+        resp.setUserName(req.getUser().getName());
         resp.setLeaveTypeName(req.getLeaveType().getName());
         resp.setLeaveTypeCode(req.getLeaveType().getCode());
         resp.setStartTime(req.getStartTime());

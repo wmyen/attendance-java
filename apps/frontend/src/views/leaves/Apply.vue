@@ -37,6 +37,11 @@ import type { FormInstance } from 'element-plus'
 import { getLeaveTypes } from '../../api/leaves'
 import request from '../../api/request'
 
+async function getBriefUsers() {
+  const { data } = await request.get('/users/brief')
+  return data
+}
+
 const leaveStore = useLeaveStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
@@ -78,9 +83,9 @@ async function handleSubmit() {
 onMounted(async () => {
   const [ltRes, usersRes] = await Promise.all([
     getLeaveTypes(),
-    request.get('/users', { params: { page: 0, size: 100 } }),
+    getBriefUsers(),
   ])
   leaveTypes.value = ltRes.data
-  agents.value = usersRes.data.content || []
+  agents.value = usersRes
 })
 </script>

@@ -9,12 +9,20 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    @GetMapping("/brief")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<UserBriefResponse>> listBrief() {
+        return ResponseEntity.ok(userService.listBriefUsers());
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")

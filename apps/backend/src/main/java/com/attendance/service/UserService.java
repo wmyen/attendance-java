@@ -32,6 +32,14 @@ public class UserService {
     private static final int PASSWORD_LENGTH = 12;
 
     @Transactional(readOnly = true)
+    public java.util.List<UserBriefResponse> listBriefUsers() {
+        return userRepository.findAll().stream()
+                .filter(User::getIsActive)
+                .map(u -> new UserBriefResponse(u.getId(), u.getName(), u.getEmail()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public UserListResponse listUsers(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         Page<User> userPage;

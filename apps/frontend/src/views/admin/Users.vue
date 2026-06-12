@@ -46,6 +46,16 @@
             <el-option v-for="d in departments" :key="d.id" :label="d.name" :value="d.id" />
           </el-select>
         </el-form-item>
+        <el-form-item label="主管">
+          <el-select v-model="form.managerId" clearable placeholder="選擇主管" style="width: 100%;">
+            <el-option v-for="u in allUsers" :key="u.id" :label="u.name" :value="u.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="代理人">
+          <el-select v-model="form.agentId" clearable placeholder="選擇代理人" style="width: 100%;">
+            <el-option v-for="u in allUsers" :key="u.id" :label="u.name" :value="u.id" />
+          </el-select>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showDialog = false">取消</el-button>
@@ -59,6 +69,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useUserStore } from '../../stores/user'
 import { getDepartments } from '../../api/departments'
+import request from '../../api/request'
 
 const userStore = useUserStore()
 const users = computed(() => userStore.users)
@@ -70,12 +81,15 @@ const page = ref(1)
 const showDialog = ref(false)
 const editingUser = ref<any>(null)
 const departments = ref<any[]>([])
+const allUsers = ref<any[]>([])
 
 const form = reactive({
   email: '',
   name: '',
   role: 'EMPLOYEE',
   deptId: null as number | null,
+  managerId: null as number | null,
+  agentId: null as number | null,
 })
 
 function fetchData() {
@@ -87,14 +101,29 @@ function openEdit(row: any) {
   form.name = row.name
   form.role = row.role
   form.deptId = row.deptId
+  form.managerId = row.managerId
+  form.agentId = row.agentId
   showDialog.value = true
 }
 
 async function handleSave() {
   if (editingUser.value) {
-    await userStore.updateUser(editingUser.value.id, { name: form.name, role: form.role, deptId: form.deptId || undefined })
+    await userStore.updateUser(editingUser.value.id, {
+      name: form.name,
+      role: form.role,
+      deptId: form.deptId || undefined,
+      managerId: form.managerId || undefined,
+      agentId: form.agentId || undefined,
+    })
   } else {
-    await userStore.createUser({ email: form.email, name: form.name, role: form.role, deptId: form.deptId || undefined })
+    await userStore.createUser({
+      email: form.email,
+      name: form.name,
+      role: form.role,
+      deptId: form.deptId || undefined,
+      managerId: form.managerId || undefined,
+      agentId: form.agentId || undefined,
+    })
   }
   showDialog.value = false
   editingUser.value = null
@@ -105,8 +134,12 @@ async function handleDeactivate(id: number) {
 }
 
 onMounted(async () => {
-  const { data } = await getDepartments()
-  departments.value = data
+  const [deptRes, usersRes] = await Promise.all([
+    getDepartments(),
+    request.get('/users/brief'),
+  ])
+  departments.value = deptRes.data
+  allUsers.value = usersRes.data
   fetchData()
 })
 </script>

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 public class OvertimeResponse {
 
     private Long id;
+    private Long userId;
+    private String userName;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String reason;

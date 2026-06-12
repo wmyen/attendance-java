@@ -148,6 +148,8 @@ public class OvertimeService {
     private OvertimeResponse toResponse(OvertimeRequest req) {
         OvertimeResponse resp = new OvertimeResponse();
         resp.setId(req.getId());
+        resp.setUserId(req.getUser().getId());
+        resp.setUserName(req.getUser().getName());
         resp.setStartTime(req.getStartTime());
         resp.setEndTime(req.getEndTime());
         resp.setReason(req.getReason());
