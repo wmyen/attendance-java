@@ -22,6 +22,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <mockito.version>5.23.0</mockito.version>
         <byte-buddy.version>1.18.10</byte-buddy.version>
+        <surefire.excludedGroups>smtp</surefire.excludedGroups>
     </properties>
 
     <dependencies>
@@ -162,6 +163,7 @@
                         --add-opens java.base/java.lang.reflect=ALL-UNNAMED
                         --add-opens java.base/java.util=ALL-UNNAMED
                     </argLine>
+                    <excludedGroups>${surefire.excludedGroups}</excludedGroups>
                 </configuration>
             </plugin>
             <plugin>

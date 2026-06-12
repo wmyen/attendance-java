@@ -1,6 +1,7 @@
 package com.attendance.service;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +12,12 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * MailService 整合測試。
  * 啟動完整 Spring Context，實際連線 SMTP 寄出 email。
- * 用於驗證郵件設定是否正確。
+ *
+ * ⚠️ 此測試會寄出真實信件，已標記 @Tag("smtp") 排除在預設測試之外。
+ * 執行方式：mvn test -Dgroups=smtp
  */
 @SpringBootTest
+@Tag("smtp")
 class MailServiceIntegrationTest {
 
     @Autowired
