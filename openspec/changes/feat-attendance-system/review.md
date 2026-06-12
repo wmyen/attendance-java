@@ -1,7 +1,7 @@
 # 變更審查 (Review) — 出缺勤管理系統（最終版）
 
 > **審查日期**: 2026-06-12
-> **審查版本**: 含 Email 完整實作 + Phase 8 審查修復 + 最終歸檔
+> **審查版本**: 含 Email 完整實作 + Phase 8 審查修復 + SMTP 排除修正
 
 ---
 
@@ -146,12 +146,13 @@
 
 | 指標 | 數值 |
 |------|------|
-| **測試總數** | 243 tests |
+| **測試總數** | 242 tests（預設套件）+ 1 SMTP 整合測試（@Tag("smtp")，手動觸發） |
 | **測試結果** | 0 failures, 0 errors |
 | **覆蓋率** | 95% 指令 / 86% 分支 (JaCoCo) |
 | **API 端點** | 29 個（全部帶權限標註） |
 | **Email 模板** | 5 個 HTML（含專業樣式） |
-| **Email 測試** | 單元 10 + 整合 1 + 實際 SMTP 寄送驗證 ✅ |
+| **Email 測試** | 單元 10 + 整合 1（排除於預設套件）+ 實際 SMTP 寄送驗證 ✅ |
+| **前端** | Vue 3 + TypeScript + Vite 8 build 成功 ✅ |
 
 ---
 
@@ -167,6 +168,7 @@
 | Email | 新增 spring.mail.from + @Value 注入 | 寄件人地址 |
 | Email | 5 個模板專業化（標題列 + footer + 色碼狀態） | 使用者體驗 |
 | Email | MailServiceIntegrationTest 實際 SMTP 驗證 | 端到端驗證 |
+| 收尾 | MailServiceIntegrationTest 加 @Tag("smtp") 排除預設套件 | 防止 mvn test 意外寄信 |
 
 ---
 
@@ -174,4 +176,4 @@
 
 - **審查人/AI**: Claude Code
 - **審查結論**: **✅ APPROVED — 通過最終審查**
-- **理由**: 全部 39+ spec 場景通過、4 項技術決策一致、29 個 API 端點驗證、243 tests 全通過、Email 實際寄送驗證成功。系統已可進行歸檔。
+- **理由**: 全部 39+ spec 場景通過、4 項技術決策一致、29 個 API 端點驗證、242 tests 全通過、Email 實際寄送驗證成功、前端 build 成功。系統已可進行歸檔。
